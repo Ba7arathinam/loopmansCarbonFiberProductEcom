@@ -1,1 +1,20 @@
-<app-nx-welcome></app-nx-welcome> <router-outlet></router-outlet>
+<app-navbar></app-navbar>
+
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer></app-footer>
+
+<!-- ── Cart Sidebar ── -->
+<app-cart-sidebar [isOpen]="cartOpen"></app-cart-sidebar>
+
+<!-- ── Checkout Modal ── -->
+@if (checkoutOpen) {
+  <app-checkout-dialog></app-checkout-dialog>
+}
+
+<!-- ── Order Success Modal ── -->
+@if (orderSuccessOpen) {
+  <app-order-success-dialog [orderId]="lastOrderId"></app-order-success-dialog>
+}

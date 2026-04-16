@@ -1,1 +1,73 @@
-<p>cart-sidebar works!</p>
+<!-- Backdrop -->
+@if (isOpen) {
+  <div class="overlay-backdrop" (click)="close()"></div>
+}
+
+<!-- Sidebar drawer -->
+<aside class="cart-sidebar" [class.open]="isOpen" id="cart-sidebar" aria-label="Shopping cart">
+
+  <!-- Header -->
+  <div class="cart-sidebar__header">
+    <div class="cart-sidebar__title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span>Your Cart</span>
+      @if (items.length > 0) {
+        <span class="cart-sidebar__count">{{ items.length }}</span>
+      }
+    </div>
+    <button class="cart-sidebar__close" (click)="close()" id="cart-close-btn" aria-label="Close cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Items -->
+  <div class="cart-sidebar__body">
+    @if (items.length === 0) {
+      <div class="cart-empty">
+        <div class="cart-empty__icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <p class="cart-empty__title">Your cart is empty</p>
+        <p class="cart-empty__sub">Add some carbon fiber magic to your build</p>
+      </div>
+    } @else {
+      @for (item of items; track getItemTrackKey(item)) {
+        <app-cart-item [item]="item"></app-cart-item>
+      }
+    }
+  </div>
+
+  <!-- Footer totals -->
+  @if (items.length > 0) {
+    <div class="cart-sidebar__footer">
+      <div class="cart-totals">
+        <div class="cart-totals__row">
+          <span>Subtotal</span>
+          <span>{{ total | currencyInr }}</span>
+        </div>
+        <div class="cart-totals__row">
+          <span>Shipping</span>
+          @if (shipping === 0) {
+            <span class="shipping-free">FREE 🎉</span>
+          } @else {
+            <span>{{ shipping | currencyInr }}</span>
+          }
+        </div>
+        @if (shipping > 0) {
+          <div class="cart-shipping-hint">
+            Add {{ (50000 - total) | currencyInr }} more for free shipping
+          </div>
+        }
+        <hr class="divider" style="margin: 12px 0;" />
+        <div class="cart-totals__row cart-totals__grand">
+          <span>Total</span>
+          <span>{{ grandTotal | currencyInr }}</span>
+        </div>
+      </div>
+      <button class="btn btn--primary btn--full btn--lg" (click)="checkout()" id="checkout-btn">
+        Proceed to Checkout
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  }
+</aside>

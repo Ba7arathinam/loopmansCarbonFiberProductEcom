@@ -1,1 +1,75 @@
-<p>product-card works!</p>
+<div class="product-card glass-card" [class.oos]="!product.inStock" [routerLink]="['/product', product.id]" role="article">
+
+  <!-- Image wrapper -->
+  <div class="product-card__img-wrap">
+    <img [src]="product.images[0]" [alt]="product.name" class="product-card__img" loading="lazy" />
+
+    <!-- Out-of-stock overlay -->
+    @if (!product.inStock) {
+      <div class="product-card__oos-label">Out of Stock</div>
+    }
+
+    <!-- Hover CTA -->
+    @if (product.inStock) {
+      <div class="product-card__hover-cta">
+        <button class="btn btn--primary btn--sm add-btn"
+          [class.added]="addedAnimation"
+          (click)="addToCart($event)"
+          [id]="'add-cart-' + product.id">
+          @if (!addedAnimation) {
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Add to Cart
+          } @else {
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Added!
+          }
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Badge -->
+  @if (product.badge) {
+    <span class="product-card__badge" [ngClass]="getBadgeClass(product.badge)">{{ product.badge }}</span>
+  }
+
+  <!-- Info -->
+  <div class="product-card__info">
+    <span class="product-card__category">{{ product.category }}</span>
+    <h3 class="product-card__name">{{ product.name }}</h3>
+
+    <!-- Stars -->
+    <div class="product-card__rating">
+      <div class="stars">
+        @for (filled of getStarsFilled(product.rating); track $index) {
+          <svg width="13" height="13" viewBox="0 0 24 24">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+              [attr.fill]="filled ? '#f59e0b' : 'rgba(245,158,11,0.18)'"
+              [attr.stroke]="filled ? '#f59e0b' : 'rgba(245,158,11,0.3)'"
+              stroke-width="1"/>
+          </svg>
+        }
+      </div>
+      <span class="text-muted">{{ product.rating }} ({{ product.reviewCount }})</span>
+    </div>
+
+    <!-- Price -->
+    <div class="product-card__price">
+      <span class="price">
+        @if (product.options && product.options.length > 0) {
+          <span class="text-muted" style="font-size: 13px; font-weight: normal;">From </span>
+        }
+        {{ product.basePrice | currencyInr }}
+      </span>
+      @if (product.originalPrice) {
+        <span class="price__original">{{ product.originalPrice | currencyInr }}</span>
+      }
+    </div>
+
+    <!-- Stock -->
+    <div class="stock-indicator" [class.stock-indicator--in]="product.inStock" [class.stock-indicator--out]="!product.inStock">
+      <span class="dot" [class.dot--in]="product.inStock" [class.dot--out]="!product.inStock"></span>
+      {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+    </div>
+  </div>
+</div>

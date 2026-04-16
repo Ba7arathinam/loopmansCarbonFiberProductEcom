@@ -1,38 +1,378 @@
+@use 'sass:math';
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
+// ══════════════════════════════════════════════════════════
+//  LOOPMANS — Global Design System v1.0
+// ══════════════════════════════════════════════════════════
+
+:root {
+  // ── Colours ──────────────────────────────────────────
+  --clr-bg:           #050508;
+  --clr-bg-card:      rgba(12, 12, 22, 0.90);
+  --clr-bg-elevated:  #0d0d18;
+  --clr-surface:      #111120;
+
+  --clr-primary:      #3b82f6;
+  --clr-primary-dim:  rgba(59, 130, 246, 0.14);
+  --clr-primary-glow: rgba(59, 130, 246, 0.45);
+  --clr-accent:       #ef4444;
+  --clr-accent-dim:   rgba(239, 68, 68, 0.14);
+  --clr-accent-glow:  rgba(239, 68, 68, 0.40);
+  --clr-violet:       #8b5cf6;
+
+  --clr-text:         #f0f0f5;
+  --clr-text-muted:   #6b7280;
+  --clr-text-dim:     #9ca3af;
+
+  --clr-border:       rgba(255, 255, 255, 0.07);
+  --clr-border-hover: rgba(59, 130, 246, 0.40);
+  --clr-border-card:  rgba(255, 255, 255, 0.06);
+
+  --clr-success:  #10b981;
+  --clr-error:    #ef4444;
+  --clr-warning:  #f59e0b;
+
+  // ── Typography ───────────────────────────────────────
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  // ── Spacing ──────────────────────────────────────────
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  16px;
+  --sp-lg:  24px;
+  --sp-xl:  40px;
+  --sp-2xl: 64px;
+  --sp-3xl: 96px;
+
+  // ── Radii ────────────────────────────────────────────
+  --r-sm:   6px;
+  --r-md:   12px;
+  --r-lg:   20px;
+  --r-xl:   32px;
+  --r-full: 9999px;
+
+  // ── Shadows ──────────────────────────────────────────
+  --shadow-card:   0 4px 40px rgba(0,0,0,0.45);
+  --shadow-glow:   0 0 40px rgba(0,229,255,0.20);
+  --shadow-accent: 0 0 40px rgba(255,144,0,0.20);
+
+  // ── Transitions ──────────────────────────────────────
+  --tr-fast: 150ms ease;
+  --tr-base: 250ms ease;
+  --tr-slow: 450ms ease;
+
+  // ── Z-index ──────────────────────────────────────────
+  --z-base:    1;
+  --z-nav:   200;
+  --z-overlay: 300;
+  --z-sidebar: 400;
+  --z-modal:   500;
+}
+
+// ══════════════════════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════════════════════
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  height: 100%;
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
+  font-family: var(--font-body);
+  background-color: var(--clr-bg);
+  color: var(--clr-text);
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+  // Carbon-fibre weave texture
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='4' height='4' fill='%23101018'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%23101018'/%3E%3Crect x='4' width='4' height='4' fill='%230c0c14'/%3E%3Crect y='4' width='4' height='4' fill='%230c0c14'/%3E%3C/svg%3E");
 }
-/* You can add global styles to this file, and also import other style files */
+
+// Scrollbar
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--clr-bg); }
+::-webkit-scrollbar-thumb {
+  background: rgba(0,229,255,0.25);
+  border-radius: var(--r-full);
+  &:hover { background: rgba(0,229,255,0.45); }
+}
+
+::selection { background: var(--clr-primary-dim); color: var(--clr-primary); }
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; height: auto; display: block; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+ul, ol { list-style: none; }
+
+// ══════════════════════════════════════════════════════════
+//  KEYFRAMES
+// ══════════════════════════════════════════════════════════
+@keyframes fadeIn       { from { opacity: 0; }                        to { opacity: 1; } }
+@keyframes fadeInUp     { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInScale  { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInRight { from { transform: translateX(100%); }       to { transform: translateX(0); } }
+@keyframes slideInUp    { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes glowPulse    { 0%,100% { box-shadow: 0 0 18px var(--clr-primary-glow); } 50% { box-shadow: 0 0 36px var(--clr-primary-glow); } }
+@keyframes spinSlow     { from { transform: rotate(0deg); }           to { transform: rotate(360deg); } }
+@keyframes shimmer      { 0% { background-position: -200% 0; }        100% { background-position: 200% 0; } }
+@keyframes checkDraw    { from { stroke-dashoffset: 120; }            to { stroke-dashoffset: 0; } }
+@keyframes floatY       { 0%,100% { transform: translateY(0); }       50% { transform: translateY(-12px); } }
+@keyframes bgFlow       { 0%,100% { background-position: 0% 50%; }    50% { background-position: 100% 50%; } }
+@keyframes scaleIn      { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes borderGlow   { 0%,100% { border-color: rgba(59,130,246,0.3); }  50% { border-color: rgba(59,130,246,0.7); } }
+
+// ══════════════════════════════════════════════════════════
+// ── STAGGER DELAYS
+// ══════════════════════════════════════════════════════════
+// NOTE: Do NOT set opacity:0 here — use animation-fill-mode:'both' instead.
+@for $i from 1 through 12 {
+  .stagger-#{$i} { animation-delay: #{($i - 1) * 0.08}s !important; }
+}
+
+// ══════════════════════════════════════════════════════════
+//  LAYOUT UTILITIES
+// ══════════════════════════════════════════════════════════
+.container {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 var(--sp-lg);
+  @media (max-width: 768px) { padding: 0 var(--sp-md); }
+}
+
+.section { padding: var(--sp-3xl) 0; @media (max-width: 768px) { padding: var(--sp-2xl) 0; } }
+
+.section-label {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--clr-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-sm);
+  &::before { content: ''; display: block; width: 24px; height: 1px; background: var(--clr-primary); }
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: 1px;
+  color: var(--clr-text);
+  span { color: var(--clr-primary); }
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--clr-text-muted);
+  max-width: 520px;
+  line-height: 1.75;
+  margin-top: var(--sp-md);
+}
+
+// ══════════════════════════════════════════════════════════
+//  COMPONENTS
+// ══════════════════════════════════════════════════════════
+
+// Glass card
+.glass-card {
+  background: var(--clr-bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--clr-border-card);
+  border-radius: var(--r-lg);
+}
+
+// ── Buttons ──────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  padding: 13px 30px;
+  border-radius: var(--r-md);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  transition: all var(--tr-base);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background var(--tr-fast);
+  }
+  &:hover::after { background: rgba(255,255,255,0.05); }
+
+  &--primary {
+    background: linear-gradient(130deg, #60a5fa, #2563eb);
+    color: #fff;
+    font-weight: 700;
+    &:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--clr-primary-glow); }
+    &:active { transform: translateY(0); }
+  }
+  &--outline {
+    background: transparent;
+    color: var(--clr-primary);
+    border: 1px solid rgba(0,229,255,0.30);
+    &:hover { background: var(--clr-primary-dim); border-color: var(--clr-primary); transform: translateY(-2px); }
+  }
+  &--ghost {
+    background: rgba(255,255,255,0.05);
+    color: var(--clr-text);
+    border: 1px solid var(--clr-border);
+    &:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.15); }
+  }
+  &--accent {
+    background: linear-gradient(130deg, #f87171, #dc2626);
+    color: #fff;
+    font-weight: 700;
+    &:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--clr-accent-glow); }
+  }
+  &--danger {
+    background: rgba(239,68,68,0.15);
+    color: var(--clr-error);
+    border: 1px solid rgba(239,68,68,0.25);
+    &:hover { background: rgba(239,68,68,0.25); }
+  }
+  &--sm { padding: 8px 18px; font-size: 12px; border-radius: var(--r-sm); }
+  &--lg { padding: 17px 46px; font-size: 16px; border-radius: var(--r-lg); }
+  &--full { width: 100%; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+}
+
+// ── Badge ────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  font-family: var(--font-heading);
+  &--new      { background: var(--clr-primary-dim); color: var(--clr-primary); border: 1px solid rgba(0,229,255,0.28); }
+  &--sale     { background: rgba(239,68,68,0.12);   color: #ef4444;             border: 1px solid rgba(239,68,68,0.3); }
+  &--hot      { background: var(--clr-accent-dim);  color: var(--clr-accent);   border: 1px solid rgba(255,144,0,0.28); }
+  &--featured { background: rgba(139,92,246,0.12);  color: var(--clr-violet);   border: 1px solid rgba(139,92,246,0.28); }
+}
+
+// ── Price ────────────────────────────────────────────────
+.price {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--clr-primary);
+  &__original { font-size: 0.8em; color: var(--clr-text-muted); text-decoration: line-through; font-weight: 400; margin-left: 6px; }
+}
+
+// ── Stock indicator ──────────────────────────────────────
+.stock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    &--in  { background: var(--clr-success); box-shadow: 0 0 8px var(--clr-success); }
+    &--out { background: var(--clr-error); }
+  }
+  &--in  { color: var(--clr-success); }
+  &--out { color: var(--clr-error); }
+}
+
+// ── Rating stars ─────────────────────────────────────────
+.stars {
+  display: flex;
+  gap: 2px;
+  svg { width: 13px; height: 13px; }
+}
+
+// ── Form group ───────────────────────────────────────────
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--clr-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-family: var(--font-heading);
+  }
+  input, select, textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--r-md);
+    padding: 12px 15px;
+    color: var(--clr-text);
+    font-size: 14px;
+    transition: border-color var(--tr-fast), background var(--tr-fast);
+    &:focus { outline: none; border-color: var(--clr-primary); background: rgba(0,229,255,0.05); }
+    &::placeholder { color: var(--clr-text-muted); }
+    &.ng-touched.ng-invalid { border-color: var(--clr-error); }
+  }
+  .err { font-size: 11px; color: var(--clr-error); margin-top: 2px; }
+}
+
+// ── Glow orbs ────────────────────────────────────────────
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  &--cyan   { background: rgba(59, 130, 246, 0.10); }
+  &--amber  { background: rgba(239, 68, 68, 0.08); }
+  &--violet { background: rgba(139, 92, 246, 0.07); }
+}
+
+// ── Overlay backdrop ─────────────────────────────────────
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: var(--z-overlay);
+  animation: fadeIn 0.25s ease;
+}
+
+// ── Divider ──────────────────────────────────────────────
+.divider { height: 1px; background: var(--clr-border); border: none; }
+
+// ── Products grid ────────────────────────────────────────
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: var(--sp-lg);
+  @media (max-width: 600px) { grid-template-columns: repeat(2, 1fr); gap: var(--sp-md); }
+  @media (max-width: 380px) { grid-template-columns: 1fr; }
+}
+
+// ── Responsive helpers ───────────────────────────────────
+@media (max-width: 768px)  { .hide-mobile  { display: none !important; } }
+@media (min-width: 769px)  { .hide-desktop { display: none !important; } }
+
+// ── Text helpers ─────────────────────────────────────────
+.text-primary { color: var(--clr-primary); }
+.text-accent  { color: var(--clr-accent);  }
+.text-muted   { color: var(--clr-text-muted); font-size: 13px; }
+
+// ── Mat overrides — remove default Material chrome ──────
+.mat-mdc-form-field { display: none; }

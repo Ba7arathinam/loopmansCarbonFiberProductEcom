@@ -1,1 +1,147 @@
-<p>product-list works!</p>
+<!-- ══════════════════════════════════════════════════════
+  HERO
+══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="glow-orb glow-orb--cyan hero__orb-1"></div>
+  <div class="glow-orb glow-orb--amber hero__orb-2"></div>
+  <div class="glow-orb glow-orb--violet hero__orb-3"></div>
+
+  <div class="container hero__content">
+    <div class="hero__eyebrow animate-fade-in-up stagger-1">
+      <span class="badge badge--new">2026 Collection</span>
+      <span class="hero__eyebrow-text">India's #1 Carbon Fiber Specialist</span>
+    </div>
+
+    <h1 class="hero__title animate-fade-in-up stagger-2">
+      FORGE YOUR<br>
+      <span class="hero__title-accent">PERFORMANCE</span>
+    </h1>
+
+    <p class="hero__subtitle animate-fade-in-up stagger-3">
+      Authentic carbon fiber body kits, spoilers, hoods and interior upgrades.<br>
+      Engineered for racers. Built for legends.
+    </p>
+
+    <div class="hero__ctas animate-fade-in-up stagger-4">
+      <button class="btn btn--primary btn--lg" (click)="scrollToShop()" id="hero-shop-btn">
+        Shop Now
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <a href="#categories" class="btn btn--outline btn--lg" (click)="filterBy('All')" id="hero-explore-btn">
+        Explore Categories
+      </a>
+    </div>
+
+    <div class="hero__stats animate-fade-in-up stagger-5">
+      @for (stat of stats; track stat.label) {
+        <div class="hero__stat">
+          <span class="hero__stat-value">{{ stat.value }}</span>
+          <span class="hero__stat-label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Removed Marquee & Categories as we focus exclusively on raw materials -->
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+  SHOP GRID
+══════════════════════════════════════════════════════ -->
+<section class="section shop-section" id="shop">
+  <div class="container">
+    <div class="shop-header">
+      <div>
+        <span class="section-label">Products</span>
+        <h2 class="section-title">The <span>Collection</span></h2>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="shop-controls">
+      <app-product-search (searchChange)="onSearchChange($event)"></app-product-search>
+      <app-product-filter
+        [selectedCategory]="selectedCategory"
+        [selectedSort]="selectedSort"
+        (categoryChange)="onCategoryChange($event)"
+        (sortChange)="onSortChange($event)">
+      </app-product-filter>
+    </div>
+
+    <!-- Count -->
+    <div class="shop-count">
+      <span>
+        {{ (products | filterProducts:selectedCategory:searchTerm:selectedSort).length }}
+        results
+        @if (selectedCategory !== 'All') { <span class="text-primary"> in {{ selectedCategory }}</span> }
+        @if (searchTerm) { <span> for "<span class="text-primary">{{ searchTerm }}</span>"</span> }
+      </span>
+    </div>
+
+    <!-- Grid -->
+    <div class="products-grid">
+      @for (product of products | filterProducts:selectedCategory:searchTerm:selectedSort; track product.id) {
+        <app-product-card [product]="product" class="stagger-{{$index < 12 ? $index + 1 : 12}} animate-fade-in-up"></app-product-card>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-state__icon">🔍</div>
+          <h3>No products found</h3>
+          <p>Try adjusting your search or filter</p>
+          <button class="btn btn--outline" (click)="onSearchChange(''); onCategoryChange('All')">Clear Filters</button>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+  FEATURES
+══════════════════════════════════════════════════════ -->
+<section class="section features-section" id="features">
+  <div class="container">
+    <div class="features-header">
+      <span class="section-label">Why LOOPMANS</span>
+      <h2 class="section-title">Built <span>Different</span></h2>
+    </div>
+    <div class="features-grid">
+      @for (feat of features; track feat.title) {
+        <div class="feature-card glass-card">
+          <div class="feature-card__icon">{{ feat.icon }}</div>
+          <h3 class="feature-card__title">{{ feat.title }}</h3>
+          <p class="feature-card__desc">{{ feat.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+  TESTIMONIALS
+══════════════════════════════════════════════════════ -->
+<section class="section testimonials-section" id="testimonials">
+  <div class="container">
+    <div class="testimonials-header">
+      <span class="section-label">Reviews</span>
+      <h2 class="section-title">What Builders <span>Say</span></h2>
+    </div>
+    <div class="testimonials-grid">
+      @for (t of testimonials; track t.name) {
+        <div class="testi-card glass-card">
+          <div class="testi-card__stars">
+            @for (filled of getStars(t.rating); track $index) {
+              <svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" [attr.fill]="filled ? '#f59e0b' : 'rgba(245,158,11,0.2)'"/></svg>
+            }
+          </div>
+          <p class="testi-card__text">"{{ t.text }}"</p>
+          <div class="testi-card__author">
+            <div class="testi-card__avatar">{{ t.avatar }}</div>
+            <div>
+              <div class="testi-card__name">{{ t.name }}</div>
+              <div class="testi-card__car">{{ t.car }}</div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

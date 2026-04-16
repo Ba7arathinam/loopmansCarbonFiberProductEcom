@@ -1,0 +1,65 @@
+:host { display: block; }
+
+.cart-row {
+  display: flex;
+  gap: var(--sp-md);
+  align-items: flex-start;
+  padding: var(--sp-md);
+  border-bottom: 1px solid var(--clr-border);
+  transition: background var(--tr-fast);
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(255,255,255,0.02); }
+
+  &__img-wrap {
+    width: 70px; height: 70px;
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid var(--clr-border);
+    background: var(--clr-bg-elevated);
+  }
+  &__img { width: 100%; height: 100%; object-fit: cover; }
+
+  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  &__name { font-family: var(--font-heading); font-size: 13px; font-weight: 600; color: var(--clr-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__cat  { font-size: 11px; color: var(--clr-text-muted); }
+
+  &__bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+  &__total  { font-family: var(--font-heading); font-size: 14px; font-weight: 700; color: var(--clr-primary); }
+
+  &__remove {
+    width: 28px; height: 28px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--clr-border);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--clr-text-muted);
+    flex-shrink: 0;
+    align-self: center;
+    transition: all var(--tr-fast);
+    &:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); color: var(--clr-error); }
+  }
+}
+
+.qty-control {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.qty-btn {
+  width: 26px; height: 26px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--clr-border);
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--clr-text);
+  transition: all var(--tr-fast);
+  &:hover { background: var(--clr-primary-dim); border-color: var(--clr-primary); color: var(--clr-primary); }
+}
+
+.qty-value {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}

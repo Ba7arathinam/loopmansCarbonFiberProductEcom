@@ -1,1 +1,27 @@
-<p>product-filter works!</p>
+<div class="filter-bar">
+
+  <!-- Category chips -->
+  <div class="filter-bar__categories" id="filter-categories">
+    @for (cat of categories; track cat) {
+      <button
+        class="chip"
+        [class.chip--active]="selectedCategory === cat"
+        (click)="selectCategory(cat)"
+        [id]="'cat-' + cat.replace(' ','')">
+        {{ cat }}
+      </button>
+    }
+  </div>
+
+  <!-- Sort -->
+  <div class="filter-bar__sort">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+    <select [value]="selectedSort" (change)="onSortChange($event)" id="sort-select" class="sort-select">
+      @for (opt of sortOptions; track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+      }
+    </select>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+
+</div>

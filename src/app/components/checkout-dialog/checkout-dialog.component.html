@@ -1,1 +1,141 @@
-<p>checkout-dialog works!</p>
+<div class="overlay-backdrop" (click)="close()"></div>
+
+<div class="checkout-modal" id="checkout-modal" role="dialog" aria-modal="true" aria-label="Checkout">
+
+  <!-- Header -->
+  <div class="checkout-modal__header">
+    <div class="checkout-modal__title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Secure Checkout
+    </div>
+    <button class="checkout-modal__close" (click)="close()" id="checkout-close" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="checkout-modal__body">
+
+    <!-- Left: Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="checkout-form" id="checkout-form" novalidate>
+      <h3 class="checkout-form__section-title">Delivery Information</h3>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="checkout-name">Full Name</label>
+          <input id="checkout-name" formControlName="name" placeholder="Arjun Mehta"
+            [class.ng-touched]="form.get('name')?.touched"
+            [class.ng-invalid]="form.get('name')?.invalid" />
+          @if (err('name', 'required')) { <span class="err">Full name is required</span> }
+          @if (err('name', 'minlength')) { <span class="err">Minimum 2 characters</span> }
+        </div>
+        <div class="form-group">
+          <label for="checkout-email">Email</label>
+          <input id="checkout-email" formControlName="email" type="email" placeholder="you@email.com"
+            [class.ng-touched]="form.get('email')?.touched"
+            [class.ng-invalid]="form.get('email')?.invalid" />
+          @if (err('email', 'required')) { <span class="err">Email is required</span> }
+          @if (err('email', 'email'))    { <span class="err">Enter a valid email</span> }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="checkout-phone">Mobile Number</label>
+        <input id="checkout-phone" formControlName="phone" type="tel" placeholder="9876543210"
+          [class.ng-touched]="form.get('phone')?.touched"
+          [class.ng-invalid]="form.get('phone')?.invalid" />
+        @if (err('phone', 'required')) { <span class="err">Phone number is required</span> }
+        @if (err('phone', 'pattern'))  { <span class="err">Enter valid 10-digit Indian mobile number</span> }
+      </div>
+
+      <div class="form-group">
+        <label for="checkout-address">Street Address</label>
+        <textarea id="checkout-address" formControlName="address" rows="2" placeholder="House No., Street, Colony…"
+          [class.ng-touched]="form.get('address')?.touched"
+          [class.ng-invalid]="form.get('address')?.invalid"></textarea>
+        @if (err('address', 'required'))   { <span class="err">Address is required</span> }
+        @if (err('address', 'minlength'))  { <span class="err">Enter full address (min 10 chars)</span> }
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label for="checkout-city">City</label>
+          <input id="checkout-city" formControlName="city" placeholder="Mumbai"
+            [class.ng-touched]="form.get('city')?.touched"
+            [class.ng-invalid]="form.get('city')?.invalid" />
+          @if (err('city', 'required')) { <span class="err">City is required</span> }
+        </div>
+        <div class="form-group">
+          <label for="checkout-state">State</label>
+          <select id="checkout-state" formControlName="state"
+            [class.ng-touched]="form.get('state')?.touched"
+            [class.ng-invalid]="form.get('state')?.invalid">
+            <option value="">Select state</option>
+            @for (state of indianStates; track state) {
+              <option [value]="state">{{ state }}</option>
+            }
+          </select>
+          @if (err('state', 'required')) { <span class="err">State is required</span> }
+        </div>
+        <div class="form-group">
+          <label for="checkout-pincode">Pincode</label>
+          <input id="checkout-pincode" formControlName="pincode" placeholder="400001" maxlength="6"
+            [class.ng-touched]="form.get('pincode')?.touched"
+            [class.ng-invalid]="form.get('pincode')?.invalid" />
+          @if (err('pincode', 'required')) { <span class="err">Pincode required</span> }
+          @if (err('pincode', 'pattern'))  { <span class="err">Enter 6-digit pincode</span> }
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--full btn--lg submit-btn"
+        [disabled]="isSubmitting" id="place-order-btn">
+        @if (isSubmitting) {
+          <span class="spinner"></span> Processing…
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Place Order — {{ grandTotal | currencyInr }}
+        }
+      </button>
+    </form>
+
+    <!-- Right: Order Summary -->
+    <div class="checkout-summary">
+      <h3 class="checkout-form__section-title">Order Summary</h3>
+      <div class="checkout-items">
+        @for (item of items; track item.product.id) {
+          <div class="checkout-item">
+            <img [src]="item.product.images[0]" [alt]="item.product.name" class="checkout-item__img" />
+            <div class="checkout-item__info">
+              <p class="checkout-item__name">{{ item.product.name }}</p>
+              @if (getOptionsString(item)) {
+                <p class="checkout-item__cat" style="color: var(--clr-primary); font-family: var(--font-heading); letter-spacing: 0.5px;">{{ getOptionsString(item) }}</p>
+              } @else {
+                <p class="checkout-item__cat">{{ item.product.category }}</p>
+              }
+              <p class="checkout-item__price">{{ item.calculatedPrice | currencyInr }} × {{ item.quantity }}</p>
+            </div>
+            <span class="checkout-item__total">{{ (item.calculatedPrice * item.quantity) | currencyInr }}</span>
+          </div>
+        }
+      </div>
+      <div class="checkout-totals">
+        <div class="totals-row"><span>Subtotal</span><span>{{ total | currencyInr }}</span></div>
+        <div class="totals-row">
+          <span>Shipping</span>
+          @if (shipping === 0) { <span class="free-ship">Free</span> }
+          @else { <span>{{ shipping | currencyInr }}</span> }
+        </div>
+        <hr class="divider" style="margin:12px 0" />
+        <div class="totals-row totals-grand">
+          <span>Grand Total</span>
+          <span>{{ grandTotal | currencyInr }}</span>
+        </div>
+      </div>
+      <div class="checkout-badges">
+        <div class="trust-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure Payment</div>
+        <div class="trust-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Easy Returns</div>
+        <div class="trust-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Fast Delivery</div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,1 +1,229 @@
-<p>product-detail works!</p>
+@if (product) {
+
+  <!-- Main Detail -->
+  <section class="detail-section">
+    <div class="glow-orb glow-orb--cyan detail__orb-1"></div>
+
+    <!-- Breadcrumb -->
+    <div class="detail-breadcrumb">
+      <div class="container">
+        <a routerLink="/" class="crumb-link">Home</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="crumb-link">{{ product.category }}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="crumb-current">{{ product.name }}</span>
+      </div>
+    </div>
+    <div class="container detail-grid">
+
+      <!-- Left: Gallery -->
+      <div class="detail-gallery">
+        <div class="detail-gallery__main">
+          <img [src]="product.images[selectedImage]" [alt]="product.name" class="detail-gallery__img" />
+          @if (product.badge) {
+            <span class="detail-gallery__badge badge badge--{{ product.badge.toLowerCase() }}">{{ product.badge }}</span>
+          }
+          @if (!product.inStock) {
+            <div class="detail-gallery__oos">Out of Stock</div>
+          }
+        </div>
+        @if (product.images.length > 1) {
+          <div class="detail-gallery__thumbs">
+            @for (img of product.images; track $index) {
+              <button class="thumb-btn" [class.active]="selectedImage === $index" (click)="selectImage($index)" [id]="'thumb-' + $index">
+                <img [src]="img" [alt]="product.name + ' ' + ($index+1)" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Right: Info -->
+      <div class="detail-info">
+        <div class="detail-info__top">
+          <span class="detail-info__category">{{ product.category }}</span>
+          @if (product.isFeatured) {
+            <span class="badge badge--featured">Featured</span>
+          }
+        </div>
+
+        <h1 class="detail-info__name">{{ product.name }}</h1>
+
+        <!-- Rating -->
+        <div class="detail-info__rating">
+          <div class="stars">
+            @for (filled of getStars(product.rating); track $index) {
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+                  [attr.fill]="filled ? '#f59e0b' : 'rgba(245,158,11,0.18)'" [attr.stroke]="filled ? '#f59e0b' : 'rgba(245,158,11,0.25)'" stroke-width="1"/>
+              </svg>
+            }
+          </div>
+          <span class="detail-rating-num">{{ product.rating }}</span>
+          <span class="text-muted">({{ product.reviewCount }} reviews)</span>
+        </div>
+
+        <!-- Price -->
+        <div class="detail-info__price">
+          <span class="detail-price">{{ currentPrice | currencyInr }}</span>
+          @if (product.originalPrice) {
+            <span class="price__original" style="font-size:1rem">{{ product.originalPrice | currencyInr }}</span>
+            <span class="detail-discount">{{ getDiscount() }}% OFF</span>
+          }
+        </div>
+
+        <!-- Options / Variants -->
+        @if (product.options && product.options.length > 0) {
+          <div class="detail-options">
+            @for (opt of product.options; track opt.name) {
+              <div class="option-group">
+                <span class="option-label">{{ opt.name }}:</span>
+                <div class="option-pills">
+                  @for (val of opt.values; track val) {
+                    <button class="option-pill"
+                            [class.active]="selectedOptions[opt.name] === val"
+                            (click)="selectOption(opt.name, val)">
+                      {{ val }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Stock & Count -->
+        <div class="detail-info__stock">
+          <div class="stock-indicator"
+            [class.stock-indicator--in]="product.inStock"
+            [class.stock-indicator--out]="!product.inStock">
+            <span class="dot" [class.dot--in]="product.inStock" [class.dot--out]="!product.inStock"></span>
+            {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+          </div>
+          @if (product.inStock && product.stockCount <= 5) {
+            <span class="low-stock">Only {{ product.stockCount }} left!</span>
+          }
+        </div>
+
+        <!-- Quantity + Add to Cart -->
+        <div class="detail-info__actions">
+          <div class="qty-selector">
+            <button class="qty-btn" (click)="decQty()" [disabled]="quantity <= 1" id="detail-dec-qty">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="qty-display">{{ quantity }}</span>
+            <button class="qty-btn" (click)="incQty()" [disabled]="quantity >= product.stockCount" id="detail-inc-qty">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+
+          <button class="btn btn--primary btn--lg detail-atc"
+            [class.added]="addedAnimation"
+            [disabled]="!product.inStock"
+            (click)="addToCart()"
+            id="detail-add-cart">
+            @if (addedAnimation) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Added to Cart!
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+              Add to Cart — {{ (currentPrice * quantity) | currencyInr }}
+            }
+          </button>
+        </div>
+
+        <!-- Free shipping hint -->
+        @if (currentPrice < 50000) {
+          <div class="detail-shipping-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Add {{ (50000 - currentPrice) | currencyInr }} more to your cart for free shipping
+          </div>
+        } @else {
+          <div class="detail-shipping-hint detail-shipping-hint--free">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            This order qualifies for FREE shipping!
+          </div>
+        }
+
+        <!-- Bulk Enquiry -->
+        <div class="bulk-enquiry-section">
+          <button class="btn-bulk" (click)="openBulkEnquiry()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span class="underline">Looking for Bulk?</span>
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="detail-tabs">
+          <button class="detail-tab" [class.active]="activeTab === 'description'" (click)="activeTab = 'description'" id="tab-description">Description</button>
+          <button class="detail-tab" [class.active]="activeTab === 'specs'" (click)="activeTab = 'specs'" id="tab-specs">Specifications</button>
+        </div>
+
+        @if (activeTab === 'description') {
+          <div class="detail-description">
+            <p class="detail-desc-text">{{ product.description }}</p>
+            <ul class="detail-features">
+              @for (feat of product.features; track feat) {
+                <li>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  {{ feat }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (activeTab === 'specs') {
+          <div class="detail-specs">
+            <table class="specs-table">
+              <tbody>
+                @for (spec of product.specs; track spec.label) {
+                  <tr>
+                    <td class="spec-label">{{ spec.label }}</td>
+                    <td class="spec-value">{{ spec.value }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  @if (related.length > 0) {
+    <section class="section related-section">
+      <div class="container">
+        <span class="section-label">More Like This</span>
+        <h2 class="section-title">Related <span>Products</span></h2>
+        <div class="products-grid" style="margin-top: 2rem;">
+          @for (p of related; track p.id) {
+            <app-product-card [product]="p"></app-product-card>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+    <!-- Bulk Enquiry Dialog -->
+    @if (showBulkEnquiry) {
+      <app-bulk-enquiry-dialog 
+        [productName]="product.name" 
+        [selectedVariant]="selectedOptions"
+        (close)="closeBulkEnquiry()">
+      </app-bulk-enquiry-dialog>
+    }
+
+} @else {
+  <!-- Not found -->
+  <div class="not-found">
+    <div class="container not-found__inner">
+      <div class="not-found__icon">🔍</div>
+      <h2 class="not-found__title">Product Not Found</h2>
+      <p class="not-found__sub">The product you're looking for doesn't exist or may have been removed.</p>
+      <a routerLink="/" class="btn btn--primary btn--lg">Back to Shop</a>
+    </div>
+  </div>
+}
