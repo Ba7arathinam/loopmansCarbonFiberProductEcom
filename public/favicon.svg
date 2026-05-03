@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fibrebros-favicon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="45%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+  </defs>
+  <rect width="110" height="110" rx="22" fill="#05060f"/>
+  <path d="M12 88Q55 110 98 88" stroke="#ef4444" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M16 10L16 90L94 50Z" fill="url(#fibrebros-favicon)"/>
+  <path d="M28 27L28 73L72 50Z" fill="#05060f"/>
+  <path d="M16 10L28 27L72 50L94 50Z" fill="#bfdbfe" fill-opacity="0.28"/>
+  <path d="M16 90L28 73L72 50L94 50Z" fill="#1e3a8a" fill-opacity="0.45"/>
+  <path d="M16 10L16 23L27 27" fill="none" stroke="#dbeafe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
