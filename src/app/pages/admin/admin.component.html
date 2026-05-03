@@ -1,0 +1,473 @@
+<div class="admin-page">
+  <div class="admin-header">
+    <div class="admin-header__left">
+      <div class="admin-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <h1 class="admin-logo__text">Admin <span>Panel</span></h1>
+      </div>
+      <div class="admin-nav-pills">
+        <button class="admin-pill" [class.active]="view === 'list'" (click)="showList()">Products</button>
+        <button class="admin-pill" [class.active]="view === 'add'" (click)="showAdd()">+ Add New</button>
+      </div>
+    </div>
+    <a routerLink="/" class="btn btn--ghost btn--sm">← Back to Store</a>
+  </div>
+
+  @if (successMessage) {
+    <div class="admin-toast admin-toast--success" (click)="clearMessages()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      {{ successMessage }}
+    </div>
+  }
+  @if (errorMessage) {
+    <div class="admin-toast admin-toast--error" (click)="clearMessages()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- ── Product List ──────────────────────────────────────────────────── -->
+  @if (view === 'list') {
+    <section class="admin-section">
+      <div class="admin-section__head">
+        <h2 class="admin-section__title">All Products <span class="admin-count">{{ products.length }}</span></h2>
+        @if (!seedDone) {
+          <button class="btn btn--seed" (click)="seedProducts()" [disabled]="seeding" id="seed-btn">
+            @if (seeding) {
+              <span class="spinner-sm"></span> Resetting Store...
+            } @else {
+              🌱 Reset to Default Products
+            }
+          </button>
+        }
+      </div>
+
+      @if (products.length === 0) {
+        <div class="admin-empty">
+          <div class="admin-empty__icon">📦</div>
+          <p>No products yet. Click <strong>Seed Default Products</strong> to populate the store with the 3 Loopmans catalogue items, or use <strong>+ Add New</strong> to add your own.</p>
+        </div>
+      }
+
+      @if (products.length > 0) {
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Base Price</th>
+                <th>Combos</th>
+                <th>Price Range</th>
+                <th>Images</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of products; track trackById($index, p)) {
+                <tr class="admin-row">
+                  <td class="admin-row__name">
+                    <div class="product-thumb">
+                      <img [src]="p.images[0]" [alt]="p.name" class="product-thumb__img" />
+                      <div>
+                        <div class="product-thumb__name">{{ p.name }}</div>
+                        <div class="product-thumb__slug">{{ p.slug }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="cat-badge">{{ p.category }}</span></td>
+                  <td class="price-cell">{{ p.basePrice | currencyInr }}</td>
+                  <td class="center">
+                    @if (getComboCount(p) > 0) {
+                      <span class="combo-badge">{{ getComboCount(p) }} combos</span>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                  <td class="price-cell">
+                    @if (getPriceRange(p); as range) {
+                      <span class="range-text">
+                        {{ range.min | currencyInr }}<br/>
+                        <span class="muted">to</span><br/>
+                        {{ range.max | currencyInr }}
+                      </span>
+                    } @else {
+                      <span class="muted">No matrix</span>
+                    }
+                  </td>
+                  <td class="center">
+                    <span class="combo-badge" [class.has-variant]="hasVariantImages(p)">
+                      {{ p.images.length }} img{{ p.images.length !== 1 ? 's' : '' }}
+                      @if (hasVariantImages(p)) { + variants }
+                    </span>
+                  </td>
+                  <td>
+                    <span class="stock-pill" [class.in]="p.inStock" [class.out]="!p.inStock">
+                      {{ p.inStock ? 'In Stock' : 'Out of Stock' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="action-btn action-btn--edit" (click)="showEdit(p)" title="Edit Product">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="action-btn action-btn--matrix" (click)="showMatrix(p)" title="Edit Price Matrix">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                      </button>
+                      <button class="action-btn action-btn--variant" (click)="showVariantImages(p)" title="Variant Images">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      </button>
+                      @if (deleteConfirmId === p.id) {
+                        <div class="delete-confirm">
+                          <span>Delete?</span>
+                          <button class="action-btn action-btn--confirm-yes" (click)="doDelete(p.id)">Yes</button>
+                          <button class="action-btn action-btn--confirm-no" (click)="cancelDelete()">No</button>
+                        </div>
+                      } @else {
+                        <button class="action-btn action-btn--delete" (click)="confirmDelete(p.id)" title="Delete Product">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- ── Add / Edit Form ─────────────────────────────────────────────────── -->
+  @if (view === 'add' || view === 'edit') {
+    <section class="admin-section">
+      <div class="admin-section__head">
+        <h2 class="admin-section__title">
+          {{ view === 'add' ? 'Add New Product' : 'Edit Product: ' + editingProduct?.name }}
+        </h2>
+        <button class="btn btn--ghost btn--sm" (click)="showList()">← Back</button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="admin-form" novalidate>
+        <div class="admin-form__grid">
+
+          <!-- Name -->
+          <div class="form-group fg-full">
+            <label for="f-name">Product Name *</label>
+            <input id="f-name" formControlName="name" placeholder="e.g. 3K Twill Carbon Fibre Round Tube" (blur)="autoSlug()" />
+            @if (form.get('name')?.touched && form.get('name')?.invalid) {
+              <span class="err">Name is required (min 5 chars)</span>
+            }
+          </div>
+
+          <!-- Slug -->
+          <div class="form-group fg-full">
+            <label for="f-slug">Slug *</label>
+            <input id="f-slug" formControlName="slug" placeholder="auto-generated from name" />
+            @if (form.get('slug')?.touched && form.get('slug')?.invalid) {
+              <span class="err">Slug is required</span>
+            }
+          </div>
+
+          <!-- Category + Badge -->
+          <div class="form-group">
+            <label for="f-cat">Category *</label>
+            <select id="f-cat" formControlName="category">
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="f-badge">Badge</label>
+            <select id="f-badge" formControlName="badge">
+              @for (b of badges; track b) {
+                <option [value]="b">{{ b || '— None —' }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Base Price + Original Price -->
+          <div class="form-group">
+            <label for="f-price">Base Price (₹) *</label>
+            <input id="f-price" type="number" formControlName="basePrice" placeholder="e.g. 5094" />
+            @if (form.get('basePrice')?.touched && form.get('basePrice')?.invalid) {
+              <span class="err">Price must be ≥ 1</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="f-orig">Original Price (₹) — strikethrough</label>
+            <input id="f-orig" type="number" formControlName="originalPrice" placeholder="Leave blank if no sale" />
+          </div>
+
+          <!-- Rating + Reviews -->
+          <div class="form-group">
+            <label for="f-rating">Rating (0–5)</label>
+            <input id="f-rating" type="number" step="0.1" formControlName="rating" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-reviews">Review Count</label>
+            <input id="f-reviews" type="number" formControlName="reviewCount" />
+          </div>
+
+          <!-- Stock -->
+          <div class="form-group">
+            <label for="f-stock-count">Stock Count</label>
+            <input id="f-stock-count" type="number" formControlName="stockCount" />
+          </div>
+
+          <div class="form-group fg-checkrow">
+            <label class="check-label">
+              <input type="checkbox" formControlName="inStock" id="f-in-stock" />
+              <span>In Stock</span>
+            </label>
+            <label class="check-label">
+              <input type="checkbox" formControlName="isFeatured" id="f-featured" />
+              <span>Featured</span>
+            </label>
+          </div>
+
+          <!-- ── Image Upload Section ─────────────────────────────────── -->
+          <div class="form-group fg-full">
+            <label>Product Images</label>
+
+            <!-- Existing images -->
+            @if (existingImages.length > 0) {
+              <div class="img-preview-grid">
+                @for (url of existingImages; track $index) {
+                  <div class="img-preview-item">
+                    <img [src]="url" alt="Product image" class="img-preview-thumb" />
+                    <button type="button" class="img-remove-btn" (click)="removeExistingImage($index)" title="Remove image">×</button>
+                    <span class="img-preview-label">Saved</span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Pending uploads -->
+            @if (pendingUploads.length > 0) {
+              <div class="img-preview-grid">
+                @for (item of pendingUploads; track $index) {
+                  <div class="img-preview-item">
+                    <img [src]="item.preview" alt="New upload" class="img-preview-thumb" />
+                    <button type="button" class="img-remove-btn" (click)="removePendingUpload($index)" title="Remove">×</button>
+                    @if (item.progress > 0 && item.progress < 100) {
+                      <div class="img-progress-bar">
+                        <div class="img-progress-fill" [style.width.%]="item.progress"></div>
+                      </div>
+                    }
+                    @if (item.url) {
+                      <span class="img-preview-label img-preview-label--done">✓ Uploaded</span>
+                    } @else {
+                      <span class="img-preview-label">New</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Drop zone -->
+            <label class="img-dropzone" for="f-img-upload">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Click to add images or drop files here</span>
+              <span class="img-dropzone__sub">PNG, JPG, WEBP — multiple allowed</span>
+              <input id="f-img-upload" type="file" accept="image/*" multiple (change)="onFilesSelected($event)" style="display:none" />
+            </label>
+            <span class="form-hint">Images are uploaded to Firebase Storage on Save. First image is shown as the main product image.</span>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group fg-full">
+            <label for="f-desc">Description *</label>
+            <textarea id="f-desc" formControlName="description" rows="4" placeholder="Product description..."></textarea>
+            @if (form.get('description')?.touched && form.get('description')?.invalid) {
+              <span class="err">Description is required</span>
+            }
+          </div>
+
+          <!-- Features -->
+          <div class="form-group fg-full">
+            <label for="f-features">Features (one per line)</label>
+            <textarea id="f-features" formControlName="features" rows="5" placeholder="Feature 1&#10;Feature 2&#10;Feature 3"></textarea>
+          </div>
+
+          <!-- Options JSON -->
+          <div class="form-group fg-full">
+            <label for="f-opts">
+              Product Options (JSON)
+              <span class="label-hint">— Array of <code>&#123; "name": "Size", "values": ["S", "M"] &#125;</code></span>
+            </label>
+            <textarea id="f-opts" formControlName="optionsJson" rows="10" placeholder='[{"name":"Size","values":["300MM X 300MM"]},{"name":"Thickness","values":["2.0MM"]}]' class="mono"></textarea>
+            <span class="form-hint">After saving, use the <strong>Price Matrix</strong> button to set prices per combo, and the <strong>Variant Images</strong> button to attach images per measurement.</span>
+          </div>
+        </div>
+
+        <div class="admin-form__actions">
+          <button type="button" class="btn btn--ghost" (click)="showList()" [disabled]="saving">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="admin-save-btn" [disabled]="saving">
+            @if (saving) {
+              <span class="spinner-sm"></span> Saving...
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {{ view === 'add' ? 'Add Product' : 'Save Changes' }}
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <!-- ── Price Matrix Editor ─────────────────────────────────────────────── -->
+  @if (view === 'matrix' && matrixProduct) {
+    <section class="admin-section">
+      <div class="admin-section__head">
+        <h2 class="admin-section__title">Price Matrix — {{ matrixProduct.name }}</h2>
+        <button class="btn btn--ghost btn--sm" (click)="showList()">← Back</button>
+      </div>
+
+      <div class="matrix-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Each row represents one unique option combination. Edit prices in ₹ and click Save Matrix.</span>
+      </div>
+
+      <div class="matrix-label-info">
+        <strong>{{ matrixKeys.length }}</strong> combination{{ matrixKeys.length !== 1 ? 's' : '' }}
+        across {{ matrixProduct.options?.length ?? 0 }} option group{{ (matrixProduct.options?.length ?? 0) !== 1 ? 's' : '' }}
+      </div>
+
+      <div class="matrix-table-wrap">
+        <table class="admin-table matrix-table">
+          <thead>
+            <tr>
+              <th>Option Combination</th>
+              <th style="width:200px">Price (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (key of matrixKeys; track key) {
+              <tr class="admin-row">
+                <td class="matrix-key-cell">{{ matrixKeyLabel(key) }}</td>
+                <td>
+                  <input
+                    type="number"
+                    class="matrix-price-input"
+                    [value]="matrixEdits[key]"
+                    (change)="updateMatrixPrice(key, $any($event.target).value)"
+                    min="0"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-form__actions">
+        <button class="btn btn--ghost" (click)="showList()" [disabled]="saving">Cancel</button>
+        <button class="btn btn--primary" (click)="saveMatrix()" id="save-matrix-btn" [disabled]="saving">
+          @if (saving) { <span class="spinner-sm"></span> Saving... }
+          @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Matrix
+          }
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- ── Variant Images Editor ───────────────────────────────────────────── -->
+  @if (view === 'variantImages' && variantImgProduct) {
+    <section class="admin-section">
+      <div class="admin-section__head">
+        <h2 class="admin-section__title">Variant Images — {{ variantImgProduct.name }}</h2>
+        <button class="btn btn--ghost btn--sm" (click)="showList()">← Back</button>
+      </div>
+
+      <div class="matrix-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>
+          Add image URLs that appear when a specific measurement is selected. Key format: <code>OptionName:Value</code>
+          e.g. <code>OD:6MM</code> or <code>Size:300MM X 300MM</code>.
+          Default product images always remain visible.
+        </span>
+      </div>
+
+      <!-- Existing variant image entries -->
+      @for (key of getVariantImageKeys(); track key) {
+        <div class="variant-img-group">
+          <div class="variant-img-group__header">
+            <code class="variant-key">{{ key }}</code>
+          </div>
+          <div class="img-preview-grid">
+            @for (url of variantImgEdits[key]; track $index) {
+              <div class="img-preview-item">
+                <img [src]="url" [alt]="key" class="img-preview-thumb" />
+                <button type="button" class="img-remove-btn" (click)="removeVariantUrl(key, $index)">×</button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Add new variant image -->
+      <div class="variant-img-add">
+        <div class="variant-img-add__row">
+          <div class="form-group" style="flex:1">
+            <label>Option Key (e.g. <code>OD:6MM</code>)</label>
+            <input [(ngModel)]="newVariantKey" placeholder="OD:6MM" id="variant-key-input" />
+          </div>
+        </div>
+
+        <div class="form-group fg-full" style="margin-top: 1rem;">
+          <label>Upload Images for this Variant</label>
+          
+          <!-- Pending uploads -->
+          @if (pendingVariantUploads.length > 0) {
+            <div class="img-preview-grid" style="margin-bottom: 1rem;">
+              @for (item of pendingVariantUploads; track $index) {
+                <div class="img-preview-item">
+                  <img [src]="item.preview" alt="New upload" class="img-preview-thumb" />
+                  <button type="button" class="img-remove-btn" (click)="removeVariantUpload($index)" title="Remove">×</button>
+                  @if (item.progress > 0 && item.progress < 100) {
+                    <div class="img-progress-bar">
+                      <div class="img-progress-fill" [style.width.%]="item.progress"></div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <label class="img-dropzone" for="f-variant-upload">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Click to add images or drop files here</span>
+            <input id="f-variant-upload" type="file" accept="image/*" multiple (change)="onVariantFilesSelected($event)" style="display:none" />
+          </label>
+        </div>
+      </div>
+
+      <div class="admin-form__actions">
+        <button class="btn btn--ghost" (click)="showList()" [disabled]="saving">Cancel</button>
+        <button class="btn btn--primary" (click)="saveVariantImages()" id="save-variant-images-btn" [disabled]="saving">
+          @if (saving) { <span class="spinner-sm"></span> Saving... }
+          @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Variant Images
+          }
+        </button>
+      </div>
+    </section>
+  }
+</div>

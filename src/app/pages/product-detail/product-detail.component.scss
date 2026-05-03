@@ -279,3 +279,85 @@
   &__title { font-family:var(--font-display); font-size: 2.5rem; margin-bottom: var(--sp-sm); }
   &__sub { color: var(--clr-text-muted); margin-bottom: var(--sp-xl); }
 }
+
+// ── Skeleton loading ─────────────────────────────────────
+.skeleton-box {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-md);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Variant image label on main gallery ──────────────────
+.variant-img-label {
+  position: absolute;
+  bottom: var(--sp-sm);
+  right: var(--sp-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(16,185,129,0.85);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(6px);
+}
+
+// ── Variant thumbnail indicator ──────────────────────────
+.thumb-btn--variant {
+  border-color: rgba(16,185,129,0.4);
+  &.active { border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+}
+
+.thumb-variant-dot {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.4);
+}
+
+// ── Variant notice banner ────────────────────────────────
+.variant-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: #10b981;
+  animation: fadeInScale 0.25s ease;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Option pill with variant image indicator ─────────────
+.option-pill.has-variant-img::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: #10b981;
+  border-radius: 50%;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+

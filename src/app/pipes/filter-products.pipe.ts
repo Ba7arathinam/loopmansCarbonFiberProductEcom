@@ -23,7 +23,8 @@ export class FilterProductsPipe implements PipeTransform {
       case 'price-asc':   filtered.sort((a, b) => a.basePrice - b.basePrice); break;
       case 'price-desc':  filtered.sort((a, b) => b.basePrice - a.basePrice); break;
       case 'rating':      filtered.sort((a, b) => b.rating - a.rating); break;
-      case 'newest':      filtered.sort((a, b) => b.id - a.id); break;
+      case 'newest':      // Backend query already sorts by newest
+                          break;
     }
 
     return filtered;

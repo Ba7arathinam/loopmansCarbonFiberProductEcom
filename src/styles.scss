@@ -328,6 +328,24 @@ ul, ol { list-style: none; }
     &::placeholder { color: var(--clr-text-muted); }
     &.ng-touched.ng-invalid { border-color: var(--clr-error); }
   }
+  
+  select {
+    cursor: pointer;
+    option {
+      background: var(--clr-bg-elevated);
+      color: var(--clr-text);
+      font-size: 14px;
+    }
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
   .err { font-size: 11px; color: var(--clr-error); margin-top: 2px; }
 }
 

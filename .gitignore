@@ -32,6 +32,7 @@ node_modules
 npm-debug.log
 yarn-error.log
 testem.log
+*.log
 /typings
 
 # System Files
@@ -42,3 +43,10 @@ Thumbs.db
 .nx/workspace-data
 
 .angular
+
+# local runtime/tools used only on this machine
+.tools/
+.kilocode/
+
+# generated Firebase Functions output
+functions/lib/

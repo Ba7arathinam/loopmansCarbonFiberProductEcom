@@ -1,4 +1,22 @@
-@if (product) {
+@if (loading) {
+  <!-- Loading skeleton -->
+  <section class="detail-section">
+    <div class="container detail-grid" style="padding-top: 4rem;">
+      <div class="detail-gallery">
+        <div class="skeleton-box" style="height: 420px; border-radius: 12px;"></div>
+      </div>
+      <div class="detail-info">
+        <div class="skeleton-box" style="height: 20px; width: 30%; margin-bottom: 1rem;"></div>
+        <div class="skeleton-box" style="height: 36px; width: 85%; margin-bottom: 1rem;"></div>
+        <div class="skeleton-box" style="height: 24px; width: 40%; margin-bottom: 1.5rem;"></div>
+        <div class="skeleton-box" style="height: 100px; margin-bottom: 1rem;"></div>
+        <div class="skeleton-box" style="height: 50px; width: 60%;"></div>
+      </div>
+    </div>
+  </section>
+}
+
+@if (!loading && product) {
 
   <!-- Main Detail -->
   <section class="detail-section">
@@ -14,24 +32,43 @@
         <span class="crumb-current">{{ product.name }}</span>
       </div>
     </div>
+
     <div class="container detail-grid">
 
       <!-- Left: Gallery -->
       <div class="detail-gallery">
         <div class="detail-gallery__main">
-          <img [src]="product.images[selectedImage]" [alt]="product.name" class="detail-gallery__img" />
+          <img [src]="galleryImages[selectedImage] || 'https://placehold.co/800x800/1e1e1e/555555?text=No+Image'" [alt]="product.name" class="detail-gallery__img" />
           @if (product.badge) {
             <span class="detail-gallery__badge badge badge--{{ product.badge.toLowerCase() }}">{{ product.badge }}</span>
           }
           @if (!product.inStock) {
             <div class="detail-gallery__oos">Out of Stock</div>
           }
+          <!-- Variant image indicator -->
+          @if (isVariantImage(selectedImage)) {
+            <div class="variant-img-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Selected size image
+            </div>
+          }
         </div>
-        @if (product.images.length > 1) {
+
+        @if (galleryImages.length > 1) {
           <div class="detail-gallery__thumbs">
-            @for (img of product.images; track $index) {
-              <button class="thumb-btn" [class.active]="selectedImage === $index" (click)="selectImage($index)" [id]="'thumb-' + $index">
+            @for (img of galleryImages; track $index) {
+              <button
+                class="thumb-btn"
+                [class.active]="selectedImage === $index"
+                [class.thumb-btn--variant]="isVariantImage($index)"
+                (click)="selectImage($index)"
+                [id]="'thumb-' + $index"
+                [title]="isVariantImage($index) ? 'Image for selected size' : 'Product image'"
+              >
                 <img [src]="img" [alt]="product.name + ' ' + ($index+1)" />
+                @if (isVariantImage($index)) {
+                  <span class="thumb-variant-dot"></span>
+                }
               </button>
             }
           </div>
@@ -80,15 +117,25 @@
                 <span class="option-label">{{ opt.name }}:</span>
                 <div class="option-pills">
                   @for (val of opt.values; track val) {
-                    <button class="option-pill"
-                            [class.active]="selectedOptions[opt.name] === val"
-                            (click)="selectOption(opt.name, val)">
+                    <button
+                      class="option-pill"
+                      [class.active]="selectedOptions[opt.name] === val"
+                      [class.has-variant-img]="!!product.variantImages?.[opt.name + ':' + val]"
+                      (click)="selectOption(opt.name, val)">
                       {{ val }}
                     </button>
                   }
                 </div>
               </div>
             }
+          </div>
+        }
+
+        <!-- Variant image notice -->
+        @if (activeVariantImages.length > 0) {
+          <div class="variant-notice">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Showing {{ activeVariantImages.length }} image{{ activeVariantImages.length !== 1 ? 's' : '' }} for selected measurement
           </div>
         }
 
@@ -207,16 +254,16 @@
     </section>
   }
 
-    <!-- Bulk Enquiry Dialog -->
-    @if (showBulkEnquiry) {
-      <app-bulk-enquiry-dialog 
-        [productName]="product.name" 
-        [selectedVariant]="selectedOptions"
-        (close)="closeBulkEnquiry()">
-      </app-bulk-enquiry-dialog>
-    }
+  <!-- Bulk Enquiry Dialog -->
+  @if (showBulkEnquiry) {
+    <app-bulk-enquiry-dialog
+      [productName]="product.name"
+      [selectedVariant]="selectedOptions"
+      (close)="closeBulkEnquiry()">
+    </app-bulk-enquiry-dialog>
+  }
 
-} @else {
+} @else if (!loading) {
   <!-- Not found -->
   <div class="not-found">
     <div class="container not-found__inner">

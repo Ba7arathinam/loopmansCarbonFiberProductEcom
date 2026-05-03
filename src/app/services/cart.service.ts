@@ -25,8 +25,8 @@ export class CartService {
   );
 
   // Helper to generate a unique key for a product + options combination
-  private getItemKey(productId: number, options?: Record<string, string>): string {
-    if (!options) return productId.toString();
+  private getItemKey(productId: string, options?: Record<string, string>): string {
+    if (!options) return productId;
     const sortedKeys = Object.keys(options).sort();
     const optionsStr = sortedKeys.map(k => `${k}:${options[k]}`).join('|');
     return `${productId}_${optionsStr}`;

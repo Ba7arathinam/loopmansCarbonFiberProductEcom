@@ -1,20 +1,150 @@
-<app-navbar></app-navbar>
+<section class="launch-page" [class.launch-page--live]="isLive">
+  <div class="launch-page__shell">
+    <div class="brand-lockup" aria-label="Loopmans Carbon Fiber">
+      <svg
+        class="brand-lockup__mark"
+        width="72"
+        height="72"
+        viewBox="0 0 110 110"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="lpmLaunch" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="45%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#1e40af" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M 12,88 Q 55,110 98,88"
+          stroke="#ef4444"
+          stroke-width="8"
+          fill="none"
+          stroke-linecap="round"
+        />
+        <path d="M 16,10 L 16,90 L 94,50 Z" fill="url(#lpmLaunch)" />
+        <path d="M 28,27 L 28,73 L 72,50 Z" fill="#05060f" />
+        <path
+          d="M 16,10 L 28,27 L 72,50 L 94,50 Z"
+          fill="#bfdbfe"
+          fill-opacity="0.28"
+        />
+        <path
+          d="M 16,90 L 28,73 L 72,50 L 94,50 Z"
+          fill="#1e3a8a"
+          fill-opacity="0.45"
+        />
+        <path
+          d="M 16,10 L 16,23 L 27,27"
+          fill="none"
+          stroke="#dbeafe"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <div>
+        <p class="brand-lockup__name">FIBREBROS</p>
+        <!-- <p class="brand-lockup__sub">Carbon Fiber</p> -->
+      </div>
+    </div>
+
+    @if (!isLive && !isCelebrating) {
+    <div class="launch-panel launch-panel--countdown">
+      <p class="launch-kicker">Opening May 4</p>
+      <h1>Launching Soon</h1>
+      <p class="launch-copy">
+        Precision carbon fiber parts are almost ready for the first release.
+      </p>
+
+      <div class="countdown" aria-label="Countdown to launch">
+        @for (part of countdownParts; track part.label) {
+        <div class="countdown__unit">
+          <strong>{{ part.value | number : '2.0-0' }}</strong>
+          <span>{{ part.label }}</span>
+        </div>
+        }
+      </div>
+    </div>
+    } @if (isCelebrating) {
+    <div class="launch-panel launch-panel--celebrate" aria-live="polite">
+      <div class="confetti" aria-hidden="true">
+        @for (piece of confetti; track piece.id) {
+        <span
+          [style.left]="piece.left"
+          [style.animation-delay]="piece.delay"
+          [style.animation-duration]="piece.duration"
+          [style.background]="piece.color"
+        >
+        </span>
+        }
+      </div>
+      <p class="launch-kicker">The wait is over</p>
+      <h1>Fibrebros Is Live</h1>
+    </div>
+    } @if (isLive) {
+    <div class="launch-panel launch-panel--live" aria-live="polite">
+      <p class="launch-kicker">Launching Successfully</p>
+      <h1>We Are Live</h1>
+      <p class="launch-copy">
+        Fibrebros Carbon Fiber is now open with performance-focused carbon fiber
+        products for builders, tuners, and makers.
+      </p>
+
+      <div class="live-info">
+        <article class="launch-products">
+          <span>Products</span>
+          <h2>Product List</h2>
+          <ul>
+            <li>
+              <strong>Carbon Fiber Tubes</strong>
+              <!-- <small>Roll-wrapped tube stock for lightweight structural use.</small> -->
+            </li>
+            <li>
+              <strong>Carbon Fiber Rods</strong>
+              <!-- <small>Rigid round rods for builds, supports, and maker projects.</small> -->
+            </li>
+            <li>
+              <strong>Carbon Fiber Sheets</strong>
+              <!-- <small>Clean 3K twill sheets for fabrication and finish work.</small> -->
+            </li>
+          </ul>
+        </article>
+        <article class="company-summary">
+          <span>Company</span>
+          <h2>Fibrebros Carbon Fiber</h2>
+          <p>
+            We create lightweight, durable carbon fiber components with a focus
+            on clean finish, consistent quality, and practical fitment.
+          </p>
+        </article>
+      </div>
+    </div>
+    }
+  </div>
+</section>
+
+<!-- Main app temporarily hidden for pre-launch.
+@if (!isAdminRoute) {
+  <app-navbar></app-navbar>
+}
 
 <main class="app-main">
   <router-outlet></router-outlet>
 </main>
 
-<app-footer></app-footer>
+@if (!isAdminRoute) {
+  <app-footer></app-footer>
+}
 
-<!-- ── Cart Sidebar ── -->
 <app-cart-sidebar [isOpen]="cartOpen"></app-cart-sidebar>
 
-<!-- ── Checkout Modal ── -->
 @if (checkoutOpen) {
   <app-checkout-dialog></app-checkout-dialog>
 }
 
-<!-- ── Order Success Modal ── -->
 @if (orderSuccessOpen) {
   <app-order-success-dialog [orderId]="lastOrderId"></app-order-success-dialog>
 }
+-->

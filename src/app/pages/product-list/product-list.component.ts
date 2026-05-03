@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from '../../models/product.model';
@@ -7,6 +7,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { ProductFilterComponent } from '../../components/product-filter/product-filter.component';
 import { ProductSearchComponent } from '../../components/product-search/product-search.component';
 import { FilterProductsPipe } from '../../pipes/filter-products.pipe';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -15,8 +16,9 @@ import { FilterProductsPipe } from '../../pipes/filter-products.pipe';
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
+  loading = true;
   selectedCategory = 'All';
   searchTerm = '';
   selectedSort = 'newest';
@@ -48,9 +50,19 @@ export class ProductListComponent implements OnInit {
     { icon: '🚚', title: 'Pan-India Delivery', desc: 'Fast, insured shipping to all Indian cities. Free for orders above ₹50,000.' },
   ];
 
+  private destroy$ = new Subject<void>();
+
   constructor(private productService: ProductService) {}
 
-  ngOnInit(): void { this.products = this.productService.getAll(); }
+  ngOnInit(): void {
+    this.productService.products$.pipe(takeUntil(this.destroy$)).subscribe(p => {
+      this.products = p;
+      this.loading = false;
+    });
+    this.productService.refresh();
+  }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
   onCategoryChange(cat: string): void { this.selectedCategory = cat; }
   onSearchChange(term: string): void  { this.searchTerm = term; }
@@ -61,3 +73,4 @@ export class ProductListComponent implements OnInit {
 
   getStars(n: number): boolean[] { return Array(5).fill(false).map((_, i) => i < n); }
 }
+

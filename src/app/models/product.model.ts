@@ -13,11 +13,12 @@ export interface ProductOption {
 }
 
 export interface Product {
-  id: number;
+  /** Firestore document ID (string). Previously was a number. */
+  id: string;
   name: string;
   slug: string;
   category: ProductCategory;
-  basePrice: number;    // changed from price
+  basePrice: number;
   originalPrice?: number;
   rating: number;
   reviewCount: number;
@@ -26,13 +27,31 @@ export interface Product {
   description: string;
   features: string[];
   specs: ProductSpec[];
+  /** Default images — always shown on the product detail page. URLs from Firebase Storage. */
   images: string[];
   badge?: ProductBadge;
   isFeatured?: boolean;
-  
+
   // Dynamic Options & Matrix Pricing
   options?: ProductOption[];
+  /**
+   * Price matrix keyed by sorted option combos, e.g.:
+   *   "OD:6MM|Surface Finish:MATTE|Thickness (mm):1.0 MM" → 280
+   * Stored directly in Firestore document.
+   */
   priceMatrix?: Record<string, number>;
+
+  /**
+   * Measurement-based images.
+   * Key = a single option key fragment, e.g. "OD:6MM" or "Size:300MM X 300MM"
+   * Value = array of image URLs to display when that option is actively selected
+   *         AND it causes a price change.
+   * Default images always remain visible; these are shown additionally.
+   */
+  variantImages?: Record<string, string[]>;
+
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface CartItem {

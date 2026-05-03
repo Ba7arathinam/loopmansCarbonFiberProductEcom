@@ -2,7 +2,7 @@
 
   <!-- Image wrapper -->
   <div class="product-card__img-wrap">
-    <img [src]="product.images[0]" [alt]="product.name" class="product-card__img" loading="lazy" />
+    <img [src]="product.images[0] || 'https://placehold.co/400x400/1e1e1e/555555?text=No+Image'" [alt]="product.name" class="product-card__img" loading="lazy" />
 
     <!-- Out-of-stock overlay -->
     @if (!product.inStock) {

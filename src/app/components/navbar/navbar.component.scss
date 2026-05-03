@@ -62,6 +62,26 @@
       }
       &:hover, &.active { color: var(--clr-text); &::after { right: 0; } }
     }
+
+    .admin-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: var(--r-full);
+      background: rgba(139,92,246,0.10);
+      border: 1px solid rgba(139,92,246,0.25);
+      color: var(--clr-violet) !important;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      &::after { display: none; }
+      &:hover, &.active {
+        background: rgba(139,92,246,0.20) !important;
+        border-color: rgba(139,92,246,0.5) !important;
+        color: var(--clr-violet) !important;
+      }
+    }
   }
 
   &__actions { display: flex; align-items: center; gap: var(--sp-sm); }

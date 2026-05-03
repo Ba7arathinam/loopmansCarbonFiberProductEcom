@@ -56,15 +56,18 @@ export class CheckoutDialogComponent implements OnInit, OnDestroy {
     return !!(c && c.touched && c.hasError(error));
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid || !this.items.length) { this.form.markAllAsTouched(); return; }
     this.isSubmitting = true;
-    setTimeout(() => {
-      const order = this.orderService.placeOrder(this.items, this.form.value);
+    try {
+      const order = await this.orderService.placeOrder(this.items, this.form.value);
       this.cartService.clearCart();
       this.cartService.openOrderSuccess(order.id);
+    } catch (err) {
+      console.error('Failed to place order:', err);
+    } finally {
       this.isSubmitting = false;
-    }, 1600);
+    }
   }
 
   getOptionsString(item: CartItem): string {

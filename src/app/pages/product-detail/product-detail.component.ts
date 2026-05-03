@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
@@ -23,14 +23,22 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   quantity = 1;
   addedAnimation = false;
   activeTab: 'description' | 'specs' = 'description';
-  
+  loading = true;
+
   // Dynamic Pricing State
   selectedOptions: Record<string, string> = {};
   currentPrice = 0;
-  
+
+  /**
+   * Images that appear when a matching measurement variant is selected.
+   * These are shown AFTER default images and cleared when selection changes away.
+   */
+  activeVariantImages: string[] = [];
+  fallbackToDefaultImage = true;
+
   // Bulk Enquiry Modal
   showBulkEnquiry = false;
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -40,54 +48,72 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = parseInt(params['id']);
-      this.product = this.productService.getById(id);
-      if (this.product) {
-        this.related = this.productService.getRelated(this.product, 4);
-        this.selectedImage = 0;
-        this.quantity = 1;
-        this.addedAnimation = false;
-        
-        // Initialize default options
-        this.selectedOptions = {};
-        if (this.product.options) {
-          this.product.options.forEach(opt => {
-            if (opt.values && opt.values.length > 0) {
-              this.selectedOptions[opt.name] = opt.values[0];
-            }
-          });
-        }
-        this.updatePrice();
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.route.params.pipe(
+      switchMap(params => {
+        const id = params['id'] as string;
+        this.loading = true;
+        this.product = undefined;
+        return this.productService.getById(id);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(product => {
+      this.loading = false;
+      this.product = product;
+      if (product) {
+        this.initProduct(product);
       }
     });
   }
 
-  selectOption(optionName: string, value: string): void {
-    this.selectedOptions[optionName] = value;
-    this.updatePrice();
+  private initProduct(product: Product): void {
+    this.productService.getRelated(product, 4)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(r => this.related = r);
+
+    this.selectedImage = 0;
+    this.quantity = 1;
+    this.addedAnimation = false;
+    this.activeVariantImages = [];
+    this.fallbackToDefaultImage = true;
+
+    // Pre-select first value of each option
+    this.selectedOptions = {};
+    if (product.options) {
+      product.options.forEach(opt => {
+        if (opt.values?.length > 0) {
+          this.selectedOptions[opt.name] = opt.values[0];
+        }
+      });
+    }
+    this.resolveSelection();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  updatePrice(): void {
-    if (!this.product) return;
-    
-    // Base price fallback
-    this.currentPrice = this.product.basePrice;
+  selectOption(optionName: string, value: string): void {
+    this.selectedOptions[optionName] = value;
+    this.resolveSelection();
+  }
 
-    // Matrix lookup if available
-    if (this.product.priceMatrix && Object.keys(this.selectedOptions).length > 0) {
-      // Sort keys to ensure predictable lookup order matching the matrix
-      const matrixKeys = Object.keys(this.selectedOptions)
-        .sort()
-        .map(k => `${k}:${this.selectedOptions[k]}`)
-        .join('|');
-      
-      if (this.product.priceMatrix[matrixKeys]) {
-        this.currentPrice = this.product.priceMatrix[matrixKeys];
-      }
+  resolveSelection(): void {
+    if (!this.product) return;
+    this.productService.resolveVariant(this.product.id, this.selectedOptions)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((resolution) => {
+        this.currentPrice = resolution.price;
+        this.activeVariantImages = resolution.fallbackToDefault ? [] : resolution.images;
+        this.fallbackToDefaultImage = resolution.fallbackToDefault;
+        this.selectedImage = 0;
+      });
+  }
+
+  /** Gallery: active variant images IF available, otherwise default images */
+  get galleryImages(): string[] {
+    if (!this.product) return [];
+    if (!this.fallbackToDefaultImage && this.activeVariantImages.length > 0) {
+      return this.activeVariantImages;
     }
+    return this.product.images ?? [];
   }
 
   selectImage(i: number): void { this.selectedImage = i; }
@@ -97,28 +123,25 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   addToCart(): void {
     if (!this.product?.inStock) return;
-    // We add the item dynamically, passing the selected options and the correctly calculated price.
-    // The cart service handles quantity aggregation.
     this.cartService.addItem(this.product, this.quantity, this.selectedOptions, this.currentPrice);
-    
-    // Reset local quantity count
     this.quantity = 1;
     this.addedAnimation = true;
     setTimeout(() => this.addedAnimation = false, 2000);
   }
 
-  openBulkEnquiry(): void {
-    this.showBulkEnquiry = true;
-  }
-  closeBulkEnquiry(): void {
-    this.showBulkEnquiry = false;
-  }
+  openBulkEnquiry(): void { this.showBulkEnquiry = true; }
+  closeBulkEnquiry(): void { this.showBulkEnquiry = false; }
 
   getStars(n: number): boolean[] { return Array(5).fill(false).map((_, i) => i < Math.floor(n)); }
 
   getDiscount(): number {
     if (!this.product?.originalPrice) return 0;
     return Math.round((1 - this.currentPrice / this.product.originalPrice) * 100);
+  }
+
+  isVariantImage(idx: number): boolean {
+    void idx;
+    return !this.fallbackToDefaultImage;
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }

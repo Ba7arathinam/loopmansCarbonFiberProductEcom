@@ -37,6 +37,10 @@
       <li><a href="#categories" (click)="scrollTo('categories', $event)">Categories</a></li>
       <li><a href="#features" (click)="scrollTo('features', $event)">About</a></li>
       <li><a href="#testimonials" (click)="scrollTo('testimonials', $event)">Reviews</a></li>
+      <li><a routerLink="/admin" routerLinkActive="active" class="admin-nav-link" id="nav-admin">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Admin
+      </a></li>
     </ul>
 
     <!-- Actions -->
@@ -68,6 +72,7 @@
         <li><a href="#categories" (click)="scrollTo('categories',$event)">Categories</a></li>
         <li><a href="#features" (click)="scrollTo('features',$event)">About</a></li>
         <li><a href="#testimonials" (click)="scrollTo('testimonials',$event)">Reviews</a></li>
+        <li><a routerLink="/admin" (click)="mobileMenuOpen=false">Admin Panel</a></li>
       </ul>
       <button class="btn btn--primary btn--full" (click)="openCart()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
