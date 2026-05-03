@@ -78,14 +78,6 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
     this.startLaunchCountdown();
-     setTimeout(() => {
-           this.isCelebrating = true;
-      setTimeout(() => {
-        this.isCelebrating = false;
-        this.isLive = true;
-      }, 3200);
-     }, 2000);
-
   }
 
   ngOnDestroy(): void {
